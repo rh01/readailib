@@ -1,0 +1,35 @@
+---
+title: Display Image Using R
+author: shenhengheng
+date: '2017-12-19'
+categories:
+  - blog
+  - comment
+tags:
+  - blog
+  - disqus
+  - gitalk
+  - matrix
+  - pi
+  - rmarkdown
+---
+
+
+
+<pre class="r"><code>
+{r fig-margin, echo=FALSE, fig.cap=&quot;这是一个神经网络的图。&quot;, fig.height=3.5, fig.margin=TRUE, warning=FALSE, background=&quot;#f5f5d5&quot;, cache=FALSE}
+# need png package
+library(png)
+
+#Replace the directory and file information with your info
+ima &lt;- readPNG(&quot;C:\\Users\\Shine\\Desktop\\readailib\\themes\\hugo-lithium-theme\\static\\images\\logo.png&quot;)
+
+grid::grid.raster(ima)
+
+</code></pre>
+<div class="figure"><span id="fig:fig-margin"></span>
+<img src="/post/2017-12-19-example_files/figure-html/fig-margin-1.png" alt="这是一个神经网络的图。" width="672" />
+<p class="caption">
+Figure 1: 这是一个神经网络的图。
+</p>
+</div>

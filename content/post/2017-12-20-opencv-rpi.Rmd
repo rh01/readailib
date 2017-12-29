@@ -1,0 +1,167 @@
+---
+title: 在树莓派上搭建OpenCV环境
+author: ShenHengheng
+date: '2017-12-20'
+slug: opencv-rpi
+categories:
+  - pi
+tags:
+  - pi
+---
+
+
+本文主要介绍如何在树莓派上配置和安装OpenCV，本文原文出处^[www.pyimagesearch.com/2016/04/18/install-guide-raspberry-pi-3-raspbian-jessie-opencv- 3/].
+
+
+# 扩大文件系统
+
+由于编译安装OpenCV需要的空间很大，所以应该做的第一件事是扩展文件系统，以包括micro-SD卡上的所有可用空间：
+
+```bash
+sudo raspi-config
+```
+
+```{r echo=FALSE, fig.height=3, fig.margin=TRUE, warning=FALSE,eval=TRUE,background="#f5f5d5", cache=FALSE, fig.align='center'}
+
+library(png)
+par(bg = "#f5f5d5")
+
+ima <- readPNG("C:\\Users\\Shine\\Desktop\\readailib\\themes\\hugo-lithium-theme\\static\\images\\6380903.png")
+grid::grid.raster(ima)
+```
+
+
+```{r fig-margin, echo=FALSE, fig.cap="扩展文件系统",fig.align='center', fig.height=3, fig.margin=TRUE, warning=FALSE,eval=TRUE,background="#f5f5d5", cache=FALSE}
+
+library(png)
+par(bg = "#f5f5d5")
+
+ima <- readPNG("C:\\Users\\Shine\\Desktop\\readailib\\themes\\hugo-lithium-theme\\static\\images\\6380903.png")
+grid::grid.raster(ima)
+
+
+imb <- readPNG("C:\\Users\\Shine\\Desktop\\readailib\\themes\\hugo-lithium-theme\\static\\images\\85376892.png")
+grid::grid.raster(imb)
+
+```
+
+
+
+
+<!-- <img src="http://olrs8j04a.bkt.clouddn.com/17-12-10/6380903.jpg"> <center class="cap"><caption></caption></center> -->
+
+<!-- <div align="center"><img src="http://olrs8j04a.bkt.clouddn.com/17-12-10/85376892.jpg"> <center class="cap"><caption>图4-1 扩展文件系统</caption></center></div>  -->
+
+
+# 安装依赖
+
+```bash
+sudo apt-get install build-essential cmake pkg-config -y
+sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev -y
+
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev -y 
+sudo apt-get install libxvidcore-dev libx264-dev -y
+sudo apt-get install libgtk2.0-dev -y
+sudo apt-get install libatlas-base-dev gfortran -y 
+sudo apt-get install python2.7-dev python3-dev -y
+```
+
+# 下载OpenCV源代码
+
+```bash
+cd ~
+wget -O opencv.zip https://github.com/Itseez/opencv/archive/3.1.0.zip
+unzip opencv.zip
+```
+
+OpenCV 3.1.0 地址：https://github.com/Itseez/opencv_contrib/archive/3.1.0.zip
+
+```bash
+wget -O opencv_contrib.zip https://github.com/Itseez/opencv_contrib/archive/3.1.0.zip
+unzip opencv_contrib.zip
+```
+
+# Python2.7还是Python3.5 
+
+
+1. pip包管理器
+
+```bash
+wget https://bootstrap.pypa.io/get-pip.py
+sudo python get-pip.py
+
+sudo pip install virtualenv virtualenvwrapper
+sudo rm -rf ~/.cache/pip
+
+# virtualenv and virtualenvwrapper
+export WORKON_HOME=$HOME/.virtualenvs
+source /usr/local/bin/virtualenvwrapper.sh
+
+echo -e "\n# virtualenv and virtualenvwrapper" >> ~/.profile
+echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.profile
+echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.profile
+
+source ~/.profile
+```
+
+# 安装Numpy
+
+
+```bash
+pip install numpy
+```
+
+如果正在为Python 2.7编译OpenCV 3，请确保Python 2部分包含Interpreter ，Libraries ，numpy和packages path ：
+
+
+# 编译安装OpenCV
+
+
+```bash
+cd ~/opencv-3.1.0/
+mkdir build
+cd build
+cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D INSTALL_PYTHON_EXAMPLES=ON \
+    -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib-3.1.0/modules \
+    -D BUILD_EXAMPLES=ON ..
+
+
+make -j4
+```
+
+很容易出错，因为树莓派不一定CPU的资源不一定够用，使用
+
+```bash
+make clean
+make
+
+sudo make install
+sudo ldconfig
+```
+
+然后检查是否存在层`cv2.so`或者`cv2.cpython-34m.so`：
+
+对于Python27说，
+
+```bash
+ls -l /usr/local/lib/python2.7/site-packages/
+```
+
+如果存在，则说明在python2的环境下能够使用OpenCV。
+
+对于Python3.4说：
+
+```bash
+ls -l /usr/local/lib/python3.4/site-packages/
+```
+如果存在，则表明在Python3的环境下能够使用OpenCV
+
+但是对于Python3说需要将`cv2.cpython-34m.so`重命名为`cv2.so`才能使用。
+
+安装完成后，需要将编译生成的文件和解压后的文件删除。
+
+```bash
+rm -rf opencv-3.1.0 opencv_contrib-3.1.0
+```

@@ -1,0 +1,38 @@
+      <footer class="footer">
+
+        <!-- <center>
+          <img src="http://www.readailib.com/images/cc.png" width="88px">
+        </center>
+        
+        <ul class="footer-links">
+
+          <li>
+            <a href="{{ .Site.RSSLink | relURL }}" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="{{ "images/hugo-logo.png" | relURL }}" width="22" height="22"></a>
+          </li>
+        </ul>
+        <span style="margin: 3px"> -->
+
+          <div class="generic-box">
+Subscribe to our <a href="{{ .Site.RSSLink | relURL }}" type="application/rss+xml" target="_blank">RSS feed</a>.
+
+  <div class="share-page">
+<div class="share-links" style="text-align:center;">
+    <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="知识共享许可协议" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a><br />本作品采用<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可。
+</div>
+</div>
+
+
+</div>
+
+        
+      </footer>
+
+    <!-- </div> -->
+    {{ partial "footer_highlightjs" . }}
+    {{ partial "footer_mathjax" . }}
+    {{ template "_internal/google_analytics.html" . }}
+  </body>
+</html>

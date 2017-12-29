@@ -1,0 +1,124 @@
+---
+title: 利用python从头实现矩阵分解算法
+author: 申恒恒
+date: '2017-12-15'
+slug: 利用python从头实现矩阵分解算法
+categories:
+  - math
+  - matrix
+tags:
+  - matrix
+---
+
+该程序主要是我的《矩阵分析与应用》课程的大作业的解决方案及程序说明。大作业的要求为：
+
+> 要求完成课堂上讲的关于矩阵分解的**LU**、**QR（Gram-Schmidt）**、**Orthogonal Reduction (Householder reduction 和Givens reduction)**程序实现，要求如下：
+>   
+- 一个综合程序，根据选择参数的不同，实现不同的矩阵分解；\
+-  可以用`matlab`等编写程序，需附上简单的程序说明，比如参数代表什么意思，输入什么，输出什么等等；\
+- 一定是可执行文件，例如`.m`文件等,不能是`word`或者`txt`文档。附上源代码，不能为直接调用`matlab`等函数库.
+
+# 程序说明
+
+项目的地址为<https://github.com/rh01/matrix-decomposition>
+
+```text
+- factorization.py
+- utils.py
+```
+## utils.py
+
+共有两个源文件组成，其中utils文件主要是一些实现好的工具函数，有
+
+```{python}
+def mult_matrix(M, N):
+    """Multiply square matrices of same dimension M and N"""
+
+def pivot_matrix(M):
+    """Returns the pivoting matrix for M, used in Doolittle's method."""
+
+def trans_matrix(M):
+    """Take the transpose of a matrix."""
+    
+def norm(x):
+    """Return the Euclidean norm of the vector x."""
+
+def Q_i(Q_min, i, j, k):
+    """Construct the Q_t matrix by left-top padding the matrix Q                 
+    with elements from the identity matrix."""
+```
+
+由于实现的为矩阵运算，并且未使用到高级的矩阵运算工具软件**numpy**，因此程序里面的数据结构为python的基本数据结构`list`，所以说整个工程相对来说计算比较复杂。所以我们提前写好了简化计算的函数工具.
+
+
+## factorization.py
+
+这个是主函数实现部分，基本上所有的算法都在这个文件中实现，将函数的结构列在下面:
+
+```python
+def LU_decomposition(A, verbose=False):
+    """Performs an LU Decomposition of A (which must be square)         
+    into PA = LU. The function returns P, L and U."""
+    
+def Gram_Schimidt(A,verbose=False):
+    """Performs a Gram Schimidt based QR Decomposition of the 
+    matrix A. The function returns Q, an orthogonal matrix and R, an    
+    upper triangular matrix such that A = QR."""
+
+
+def householder_reduction(A, verbose=False):
+    """Performs a Householder Reflections based QR Decomposition of the 
+    matrix A. The function returns Q, an orthogonal matrix and R, an    
+    upper triangular matrix such that A = QR."""
+    
+def Givens_reduction(A,verbose=False):
+    """Performs a Givens Reflections based QR Decomposition of the
+    matrix A. The function returns Q, an orthogonal matrix and R, an
+    upper triangular matrix such that A = QR."""
+
+```
+    
+# 测试部分
+
+## PLU_decomposition
+
+```python
+the A matrix is:
+[[12, -51, 4], [6, 167, -68], [-4, 24, -41]]
+please choose the way to decompose A . 
+Press '1' to realize the PLU_decomposition of A. 
+Press '2' to realize the Gram_Schimidt of A.
+Press '3' to realize the householder_reduction of A.
+Press '4' to realize the Givens_reduction of A.
+please choose the mode:1
+The L matrix is
+[[1.0, 0.0, 0.0], [0.5, 1.0, 0.0], [-0.3333333333333333, 0.03636363636363636, 1.0]]
+The U matrix is
+[[12.0, -51.0, 4.0], [0.0, 192.5, -70.0], [0.0, 0.0, -37.121212121212125]]
+
+```
+
+### Gram_Schimidt
+
+```python
+the A matrix is:
+[[12, -51, 4], [6, 167, -68], [-4, 24, -41]]
+please choose the way to decompose A . 
+Press '1' to realize the PLU_decomposition of A. 
+Press '2' to realize the Gram_Schimidt of A.
+Press '3' to realize the householder_reduction of A.
+Press '4' to realize the Givens_reduction of A.
+please choose the mode:2
+QR decomposition in numpy is 
+(array([[-0.85714286,  0.39428571,  0.33142857],
+       [-0.42857143, -0.90285714, -0.03428571],
+       [ 0.28571429, -0.17142857,  0.94285714]]), array([[ -14.,  -21.,   14.],
+       [   0., -175.,   70.],
+       [   0.,    0.,  -35.]]))
+```
+
+
+
+
+
+

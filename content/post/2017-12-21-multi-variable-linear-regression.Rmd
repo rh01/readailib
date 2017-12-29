@@ -1,0 +1,168 @@
+---
+title: 多变量线性回归
+author: 申恒恒
+date: '2017-12-21'
+slug: multi-variable-linear-regression
+categories:
+  - ml
+tags:
+  - ml
+---
+
+\noindent 该笔记是来自 Andrew Ng 的 Machine Learning 课程的第二周:**多变量线性回归**的课堂记录，其实就是将单变量线性回归推广到多变量中去，主要讲解了以下几个内容:
+
+- 模型的表示
+- 梯度下降算法
+- 运算中的实用技巧
+    - 特征缩放
+    - 学习率$\alpha$
+
+
+
+# 模型表达
+在单变量线性回归的房屋预测模型例子中，我们忽略了一个显示，往往购房者不仅仅考虑一个因素，因此多变量（特征）的引入是必需的，比如房屋的价格往往和卧室的数量（numbers of bedrooms），有多少个楼层(numbers of floors)，房屋的年龄(age of home)等等，我们选取这些特征来预测价格，实例数据如图\ref{figure:multi_features}
+\begin{figure}[htbp]
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{multi_feature.png}
+  \caption{房屋价格预测模型-多变量}\label{figure:multi_features}
+\end{center}
+\end{figure}
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/12854191.jpg)
+
+
+为了后面描述的方便，特别对符号作出声明：
+
+- $n$ 特征的数目
+- $m$ 训练集中实例的数量
+- $x's$ 输入变量或者特征
+- $y's$ 输出变量或目标变量
+- $x^{(i)}$ 第$i$个训练样本的输入特征
+- $x^{(i)}_{j}$ 第$i$个训练样本的第$j$个特征
+- $x_{j}$ 样本数据的第$j$个特征
+
+
+如图\ref{figure:multi_features}中，第一个训练样本为$x^{(1)}=\left[\begin{matrix}
+2104 &5 &1& 45 &460\end{matrix}\right]$
+则第一个训练样本的第一个特征为$x^{(1)}_{1} = 21040$样本数据的第一个特征
+$x_{1}=
+\left[
+\begin{matrix}
+2104 \\
+1416 \\
+1534\\
+852
+\end{matrix}
+\right]$
+
+同样地，支持多变量的假说函数表示为$$h_{\theta}(x) = \theta_{0} + \theta_{1}x_{1}  + \theta_{2}x_{2} + \theta_{3}x_{3} + ...$$
+
+为了更方便的表示，令
+define $x_{0}$ = 1
+$$ X = \left[\begin{matrix}
+x_{0}\\
+x_{1}\\
+x_{2}\\
+x_{3}\\
+... \\
+x_{n}
+\end{matrix}
+\right] \in \mathbb{R}^{n+1}, \theta = \left[\begin{matrix}
+\theta_{0} \\
+\theta_{1} \\
+\theta_{2} \\
+\theta_{3} \\
+...\\
+\theta_{n}
+\end{matrix}\right]$$
+
+
+所以假说函数$h_{\theta}$可以表示为$$h_{\theta}(x) = \theta_{0} + \theta_{1}x_{1}  + \theta_{2}x_{2} + \theta_{3}x_{3} + ...
+= \theta^{T}X$$
+
+
+# 梯度下降算法
+本节主要讲解如何设定该假设的参数，特别地，讲解如何使用梯度下降算法处理多元线性回归模型。现在我们已经知道：
+
+- 假说函数：$h_{\theta}(x) = \theta_{0} + \theta_{1}x_{1}  + \theta_{2}x_{2} + \theta_{3}x_{3} + ...
+= \theta^{T}X$
+- 参数： $\theta \in \mathbb{R}^{n+1}$
+- 代价误差函数：$J(\mathbb{\theta}) = \frac{1}{2m}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})- y^{(i)})^{2}$
+- Goals：$minimize_{\mathbb{\theta}}J(\mathbb{\theta})$
+
+梯度下降算法伪代码：
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/92129221.jpg)
+
+\begin{algorithm}[h]  
+  \caption{梯度下降算法多变量线性回归版本}  
+  \label{alg::Gradient Descent Simple}  
+  \begin{algorithmic}[1]  
+    \Require
+    $\alpha$ 学习率;
+    $\theta \in \mathbb{R}$ 参数;
+    $J$ 代价误差函数;
+    $:=$ 赋值;
+    \Repeat \quad $for$ $j$ = $0,...,n$
+      \State $\theta_{j} := \theta_{j} - \alpha\frac{1}{m} \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})x_{j}^{(i)}$;
+    \Until{收敛}  
+  \end{algorithmic}  
+\end{algorithm}  
+
+# 运算中的适用技巧
+## 特征缩放^[特征归一化]
+
+特征缩放（feature scaling）可以把特征缩放到一个相近的范围内，是一种能使得梯度下降算法快速收敛的一个技巧。
+
+例子：图\ref{figure:scale}中，$\theta_{2}$表示房屋的大小（$0～2000$ $feets$）， $\theta_{2}$表示卧室的数量($0~5$)，从图\ref{figure:scale}(a)可以看出等高线很扁，如果不进行特征的缩放，梯度下降算法需要经过很多次迭代才能到达最小值点。经过缩放后，收敛到最小值速度比不缩放的快。
+
+\begin{figure}[htbp]
+\centering                                                          %居中
+\subfigure[没有经过特征缩放处理，算法的收敛情况]{                    %第一张子图
+\begin{minipage}{7cm}
+\centering                                                          %子图居中
+\includegraphics[scale=0.35]{large_diff.png}               %以pic.jpg的0.5倍大小输出
+\end{minipage}}
+\subfigure[经过特征缩放处理后，算法的收敛情况]{                    %第二张子图
+\begin{minipage}{7cm}
+\centering                                                          %子图居中
+\includegraphics[scale=0.55]{small_diff.png}                %以pic.jpg的0.5倍大小输出
+\end{minipage}}
+\caption{特征缩放对算法收敛的影响} %                         %大图名称
+\label{figure:scale}                                                        %图片引用标记
+\end{figure}
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/78138706.jpg)
+
+
+为了实现特征缩放将会使用到一种叫做**均值归一化**的技术，使得$\theta_{1}$,$\theta_{2}$的范围在[-1,1]之间。主要的转换公式为：
+$$X_{i} = \frac{X_{i} - \mu_{n}}{\mathbb{S}_{n}}$$
+
+其中$\mu_{n}$表示$X$的均值，$\mathbb{S}_{n}$表示$X$的范围，即$max - min$.
+
+比如$\theta_{1}$归一化的结果为$\theta_{1} = \frac{\theta_{1} - 1000}{2000}$
+
+## 学习率$\alpha$
+复习：梯度下降算法的迭代公式如下.
+
+$$\theta_{j} := \theta_{j} - \alpha\frac{\partial}{\partial_{\theta_{j}}}J(\theta)$$
+
+通过上面的公式，我们可以绘制出迭代次数与代价函数$J(\theta)$的关系曲线.通过曲线观测算发在何时起开始收敛。也有一些自动测试是否收敛的方法，例如将代价函数的变化与某个阈值（例如0.01）进行比较，通常图\ref{figure:J_theta}能直观的表示出$J(\theta)$的变化情况。
+
+\begin{figure}[htbp]
+\begin{center}
+  \includegraphics[width=0.5\textwidth]{J_theta.png}
+  \caption{$J(\theta)$与迭代次数的关系}\label{figure:J_theta}
+\end{center}
+\end{figure}
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/99087502.jpg)
+
+那么上面的例子与学习率有什么关系？关系就是如果学习率$\alpha$选择不合适将会导致梯度算法不能工作，即不能到达最小值或者将会使得梯度下降算法运行效率低迟迟不能收敛！
+
+**总结：**
+
+
+- 如果$\alpha$过小，将会导致算法的收敛速度慢;
+- 如果$\alpha$过大，在梯度下降过程中，很容易掠过局部最小值，导致无法收敛甚至发散。如图\ref{figure:alpha}.
+
+
+**技巧：** 可以尝试下面的学习率：$$\alpha = 0.001,0.003,0.01,0.03,0.1,0.3,1$$
+
+

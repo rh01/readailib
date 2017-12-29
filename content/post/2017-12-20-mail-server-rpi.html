@@ -1,0 +1,180 @@
+---
+title: 在树莓派上搭建邮件服务器
+author: ShenHengheng
+date: '2017-12-20'
+slug: mail-server-rpi
+categories:
+  - rpi
+  - mail server
+tags:
+  - rpi
+  - mailserver
+---
+
+
+
+<p>上篇文章介绍了利用树莓派搭建AP，那么有了AP之后，由于小编是一名在校的学生，将我的树莓派和我宿舍的路由器连接上网之后，我的树莓派就拥有了全球唯一可访问的地址了，这样的话就可以为所欲为了.</p>
+<p>说到为什么搭建邮件服务器，为什么要使用树莓派呢？为什么不使用VPS呢？</p>
+<p>有所不知，现在VPS（国外的）是严格要求的，<strong>不允许在他们的服务器上搭建邮件服务</strong>的!这让小编很慌啊，上次搭建了一次，可以发但是不可以接受邮件，这让我很受伤，因此我要在我树莓派上下功夫了，功夫不负有心人呢，我在下面po下我的教程，教程大部分来自该处<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。</p>
+<section id="-citadel-" class="level1">
+<h1>安装 Citadel 邮件服务器</h1>
+<ol type="1">
+<li>更新软件包</li>
+</ol>
+<pre class="bash"><code>sudo apt-get update</code></pre>
+<ol start="2" type="1">
+<li>将我们的软件包升级到最新版本.</li>
+</ol>
+<pre class="bash"><code>sudo apt-get upgrade</code></pre>
+<ol start="3" type="1">
+<li>安装Citadel 邮件服务器</li>
+</ol>
+<pre class="bash"><code>sudo apt-get install citadel-suite</code></pre>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-1"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-1-1.png" alt="leave the field set to 0.0.0.0 as this allows Citadel to listen on all incoming addresses. " width="912" />
+<p class="caption">
+Figure 1: leave the field set to 0.0.0.0 as this allows Citadel to listen on all incoming addresses.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-2"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-2-1.png" alt="Now for the user authentication mode we’re going to keep this set to internal. " width="912" />
+<p class="caption">
+Figure 2: Now for the user authentication mode we’re going to keep this set to internal.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-3"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-3-1.png" alt="Select admin username" width="912" />
+<p class="caption">
+Figure 3: Select admin username
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-4"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-4-1.png" alt="Select admin password" width="912" />
+<p class="caption">
+Figure 4: Select admin password
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-5"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-5-1.png" alt="Select Web Server" width="912" />
+<p class="caption">
+Figure 5: Select Web Server
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-6"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-6-1.png" alt="Select HTTP Port " width="912" />
+<p class="caption">
+Figure 6: Select HTTP Port
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-7"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-7-1.png" alt="Select HTTPs Port " width="912" />
+<p class="caption">
+Figure 7: Select HTTPs Port
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-8"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-8-1.png" alt="Select Language " width="912" />
+<p class="caption">
+Figure 8: Select Language
+</p>
+</div>
+<blockquote>
+Extra Steps<br />
+Sometimes the steps above will throw errors and not create the admin account we need to setup the email server correctly. If this is the case with you then you will need to do a few extra steps.<br />
+1. First we need to create the netconfigs folder and set the owner and group to citadel.
+<pre class="bash"><code class="hljs">sudo mkdir /etc/citadel/netconfigs
+sudo chown citadel:citadel /etc/citadel/netconfigs</code></pre>
+<br />
+2. Next we need to restart Citadel so the previous changes are applied correctly. We also want to run setup again so that we can setup the admin account if it wasn’t created correctly the first time.
+<pre class="bash"><code class="hljs">sudo service citadel restart
+sudo /usr/lib/citadel-server/setup</code></pre>
+<p><br />
+3. When you run the setup it will take you through a series of questions with the first being the name of admin. Set this to the username you wish to have for your admin account.<br />
+4. Next it will ask you to set a password for the administrator account. Set this to something secure so you’re not easily hacked.<br />
+5 You can now skip through the rest of the questions. Simply press enter to skip the questions and not change anything.</p>
+</blockquote>
+</section>
+<section id="-citadel-" class="level1">
+<h1>配置 Citadel 邮件服务器</h1>
+<p>由于已经安装完成，并且安装了一些Web服务器，那么现在打开一个浏览器，输入http://hostname 或者http://localhost 就可以看到web界面下的Citadel服务器</p>
+<blockquote>
+如果你不知道你的hostname是什么，你可以通过下面的命令进行查询
+<pre class="bash"><code class="hljs">hostname -i</code></pre>
+</blockquote>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-9"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-9-1.png" alt="登陆界面 " width="912" />
+<p class="caption">
+Figure 9: 登陆界面
+</p>
+</div>
+<p>使用上面安装时的用户名和密码</p>
+<ul>
+<li>admin</li>
+<li>123456</li>
+</ul>
+<p>登陆进去之后，你可以看到Citadel的仪器盘，可以通过选中相关的term进行详细的配置.</p>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-10"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-10-1.png" alt="Citadel的仪器" width="912" />
+<p class="caption">
+Figure 10: Citadel的仪器
+</p>
+</div>
+<p>此时进入administrator进行管理员配置,注意只有管理员权限的用户才可以使用该选项，对于一般网络用户是不可见的.</p>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-11"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-11-1.png" alt="进入管理员界面" width="912" />
+<p class="caption">
+Figure 11: 进入管理员界面
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-12"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-12-1.png" alt="将主机名设置为DNS解析后的全球域名" width="912" />
+<p class="caption">
+Figure 12: 将主机名设置为DNS解析后的全球域名
+</p>
+</div>
+<p>编辑SMTP服务器的参数</p>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-13"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-13-1.png" alt="SMTP服务配置" width="912" />
+<p class="caption">
+Figure 13: SMTP服务配置
+</p>
+</div>
+<p>然后进入系统级别的配置，包括更改域名和相关的反垃圾，反病毒设置。</p>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-14"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-14-1.png" alt="进入系统配置" width="912" />
+<p class="caption">
+Figure 14: 进入系统配置
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-15"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-15-1.png" alt="添加本地的主机名别名" width="912" />
+<p class="caption">
+Figure 15: 添加本地的主机名别名
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-16"></span>
+<img src="/post/2017-12-20-mail-server-rpi_files/figure-html/unnamed-chunk-16-1.png" alt="完成上面的配置后，重启服务器" width="912" />
+<p class="caption">
+Figure 16: 完成上面的配置后，重启服务器
+</p>
+</div>
+<blockquote>
+一般情况下，重启之后，就可以正常使用了，但是我们忘记了一个很重要的步骤，就是设置DNS记录，一般情况下，需要设置A记录，MX记录即可。 <img src="http://olrs8j04a.bkt.clouddn.com/17-12-20/11642203.jpg">
+<center class="cap">
+<caption>
+图1 这是我的DNS解析
+</caption>
+</center>
+</blockquote>
+</section>
+<section class="level1">
+<h1>结语</h1>
+<p>配置很简单，相比较vps来说，并且很稳定，拥有一个属于自己的邮箱，是一件很cool的事情，关于反垃圾，反病毒的设置可以参考我下面给出的参考链接。</p>
+<p>说实话，我感觉反垃圾什么的并没什么卵用！上面主要作学习用，因为快速并且稳定的配置会使得我们的工作效率大大提高的！</p>
+</section>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://pimylifeup.com/raspberry-pi-email-server/" class="uri">https://pimylifeup.com/raspberry-pi-email-server/</a><a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>

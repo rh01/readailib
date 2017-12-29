@@ -1,0 +1,110 @@
+---
+title: 在树莓派上搭建OpenCV环境
+author: ShenHengheng
+date: '2017-12-20'
+slug: opencv-rpi
+categories:
+  - pi
+tags:
+  - pi
+---
+
+
+
+<p>本文主要介绍如何在树莓派上配置和安装OpenCV，本文原文出处<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
+<section class="level1">
+<h1>扩大文件系统</h1>
+<p>由于编译安装OpenCV需要的空间很大，所以应该做的第一件事是扩展文件系统，以包括micro-SD卡上的所有可用空间：</p>
+<pre class="bash"><code>sudo raspi-config</code></pre>
+<p><img src="/post/2017-12-20-opencv-rpi_files/figure-html/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center"><span id="fig:fig-margin"></span>
+<img src="/post/2017-12-20-opencv-rpi_files/figure-html/fig-margin-1.png" alt="扩展文件系统" width="672" />
+<p class="caption">
+Figure 1: 扩展文件系统
+</p>
+</div>
+<!-- <img src="http://olrs8j04a.bkt.clouddn.com/17-12-10/6380903.jpg"> <center class="cap"><caption></caption></center> -->
+<!-- <div align="center"><img src="http://olrs8j04a.bkt.clouddn.com/17-12-10/85376892.jpg"> <center class="cap"><caption>图4-1 扩展文件系统</caption></center></div>  -->
+</section>
+<section class="level1">
+<h1>安装依赖</h1>
+<pre class="bash"><code>sudo apt-get install build-essential cmake pkg-config -y
+sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev -y
+
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev -y 
+sudo apt-get install libxvidcore-dev libx264-dev -y
+sudo apt-get install libgtk2.0-dev -y
+sudo apt-get install libatlas-base-dev gfortran -y 
+sudo apt-get install python2.7-dev python3-dev -y</code></pre>
+</section>
+<section id="opencv" class="level1">
+<h1>下载OpenCV源代码</h1>
+<pre class="bash"><code>cd ~
+wget -O opencv.zip https://github.com/Itseez/opencv/archive/3.1.0.zip
+unzip opencv.zip</code></pre>
+<p>OpenCV 3.1.0 地址：<a href="https://github.com/Itseez/opencv_contrib/archive/3.1.0.zip" class="uri">https://github.com/Itseez/opencv_contrib/archive/3.1.0.zip</a></p>
+<pre class="bash"><code>wget -O opencv_contrib.zip https://github.com/Itseez/opencv_contrib/archive/3.1.0.zip
+unzip opencv_contrib.zip</code></pre>
+</section>
+<section id="python2.7python3.5" class="level1">
+<h1>Python2.7还是Python3.5</h1>
+<ol type="1">
+<li>pip包管理器</li>
+</ol>
+<pre class="bash"><code>wget https://bootstrap.pypa.io/get-pip.py
+sudo python get-pip.py
+
+sudo pip install virtualenv virtualenvwrapper
+sudo rm -rf ~/.cache/pip
+
+# virtualenv and virtualenvwrapper
+export WORKON_HOME=$HOME/.virtualenvs
+source /usr/local/bin/virtualenvwrapper.sh
+
+echo -e &quot;\n# virtualenv and virtualenvwrapper&quot; &gt;&gt; ~/.profile
+echo &quot;export WORKON_HOME=$HOME/.virtualenvs&quot; &gt;&gt; ~/.profile
+echo &quot;source /usr/local/bin/virtualenvwrapper.sh&quot; &gt;&gt; ~/.profile
+
+source ~/.profile</code></pre>
+</section>
+<section id="numpy" class="level1">
+<h1>安装Numpy</h1>
+<pre class="bash"><code>pip install numpy</code></pre>
+<p>如果正在为Python 2.7编译OpenCV 3，请确保Python 2部分包含Interpreter ，Libraries ，numpy和packages path ：</p>
+</section>
+<section id="opencv" class="level1">
+<h1>编译安装OpenCV</h1>
+<pre class="bash"><code>cd ~/opencv-3.1.0/
+mkdir build
+cd build
+cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D INSTALL_PYTHON_EXAMPLES=ON \
+    -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib-3.1.0/modules \
+    -D BUILD_EXAMPLES=ON ..
+
+
+make -j4</code></pre>
+<p>很容易出错，因为树莓派不一定CPU的资源不一定够用，使用</p>
+<pre class="bash"><code>make clean
+make
+
+sudo make install
+sudo ldconfig</code></pre>
+<p>然后检查是否存在层<code>cv2.so</code>或者<code>cv2.cpython-34m.so</code>：</p>
+<p>对于Python27说，</p>
+<pre class="bash"><code>ls -l /usr/local/lib/python2.7/site-packages/</code></pre>
+<p>如果存在，则说明在python2的环境下能够使用OpenCV。</p>
+<p>对于Python3.4说：</p>
+<pre class="bash"><code>ls -l /usr/local/lib/python3.4/site-packages/</code></pre>
+<p>如果存在，则表明在Python3的环境下能够使用OpenCV</p>
+<p>但是对于Python3说需要将<code>cv2.cpython-34m.so</code>重命名为<code>cv2.so</code>才能使用。</p>
+<p>安装完成后，需要将编译生成的文件和解压后的文件删除。</p>
+<pre class="bash"><code>rm -rf opencv-3.1.0 opencv_contrib-3.1.0</code></pre>
+</section>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>www.pyimagesearch.com/2016/04/18/install-guide-raspberry-pi-3-raspbian-jessie-opencv- 3/<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>

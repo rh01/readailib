@@ -1,0 +1,313 @@
+---
+title: 单变量线性回归
+author: 申恒恒
+date: '2017-12-21'
+slug: single-variable-linear-regression
+categories:
+  - blog
+  - comment
+  - ml
+tags:
+  - ml
+---
+
+
+
+
+\noindent 该笔记是来自 Andrew Ng 的 Machine Learning 课程的第二周:**单变量线性回归**的课堂记录，主要讲解了以下几个内容:
+
+- 代价函数
+- 梯度下降算法
+
+
+# 模型表达
+还是上一个关于房屋价格预测的例子，给你一组房屋的大小和对应房屋的价格的数据，让你对数据进行建模，使得对于其他的房屋的大小更好的拟合出更准确的价格出来。如图1所示。
+\begin{figure}[htbp]
+\begin{center}
+  \includegraphics[width=0.5\textwidth]{single_ex_1.png}
+  \caption{房屋价格预测模型}\label{figure:single_ex_1}
+\end{center}
+\end{figure}
+
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/50192377.jpg)
+<p class="caption">
+图 1: 房屋价格预测模型
+</p>
+
+题外话：首先数据是一组关于标准输入与标准答案的数据集，那么对该数据进行建模，是属于监督学习任务。又因为数据只含有一个变量（$size$）即一个特征，且找到一条直线来拟合数据集，所以该问题又被称为单变量线性回归问题。
+
+图2是部分的样本数据，其中$X$表示房屋的大小，$Y$表示对应房屋的价格。
+\begin{figure}[htbp]
+\begin{center}
+  \includegraphics[width=0.5\textwidth]{s_data.png}
+  \caption{数据}\label{figure:s_data}
+\end{center}
+\end{figure}
+
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/25995934.jpg)
+</center>
+<p class="caption">
+图 2: 数据
+</p>
+
+为了后面更好的描述，所以对一些符号进行声明：
+
+- $m$ 训练集中实例的数量
+- $x's$ 输入变量或者特征
+- $y's$ 输出变量或目标变量
+- $(x,y)$ 一个训练样本
+- $(x^{(i)},y^{(i)})$ 第$i$个训练样本
+\end{itemize}
+
+有了数据之后，可以用下图就可以描述房屋价格预测问题建模的过程。
+\begin{figure}[htbp]
+\begin{center}
+  \includegraphics[width=0.5\textwidth]{procedure.png}
+  \caption{建模的过程}\label{figure:precedure}
+\end{center}
+\end{figure}
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/49786727.jpg)
+</center>
+<p class="caption">
+图 3: 建模的过程
+</p>
+
+图片描述：因而解决房屋价格预测问题，实际上就是要将训练集”喂给“我们的学习算法，进而学习到一个假设$h$，然后将要预测的房屋尺寸作为输入变量输入给$h$，预测出该房屋的交易价格作为输出结果。**其实$h$就是一个我们要学习的函数**。
+
+我们如何表示函数呢？对于单变量线性回归问题来说，$h_{\theta}(x) = \theta_{0} + \theta_{1} x$.
+
+# 代价函数
+## 引入代价函数
+有了训练数据，也有了模型的表示$h$，但是问题是如何选择 $\theta_{0}$ 和 $\theta_{1}$ ?
+
+基本想法是选择$\theta_{0}$，$\theta_{1}$以使得在训练集上$h_{\theta}(x)$接近$y$.用数学表达式表示出来，如下：
+$$minimize_{\theta{0},\theta_{1}}\frac{1}{2m}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})- y^{(i)})^{2}$$
+
+**注意：** 在学习的时候，有一个区别，$loss function$描述的是单个样本误差，而$cost$ $function$描述整个训练集的误差。
+
+同样地，为了更好的下文描述，将其简化：
+
+$$J(\theta_{0},\theta_{1}) = \frac{1}{2m}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})- y^{(i)})^{2}$$
+
+Goals: `$$ minimize_{\theta{0},\theta{1}}J(\theta_{0}, \theta_{1})$$` 
+其中$J(\theta_{0}, \theta_{1})$是平方误差（代价）函数，它是解决回归问题常用的手段。
+
+## 代价函数$J$的工作原理
+
+	
+- 假说函数:	$h_{\theta}(x) = \theta_{0} + \theta_{1}x$ 
+- 参数：$\theta_{0}, \theta_{1}$ 
+- 代价函数：$J(\theta_{0},\theta_{1}) = frac{1}{2m}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})- y^{(i)})^{2}$ 
+- 目标：$minimize_{\theta{0},\theta{1}}J(\theta_{0}, \theta_{1})$
+
+简化来讲，就是找到使得误差最小的那一对参数（$\theta_{0}, \theta_{1}$).
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{cost.png}
+		\caption{代价函数工作原理}\label{figure:cost}
+	\end{center}
+\end{figure}
+
+<p class="caption">
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/26673069.jpg)
+图 4: 代价函数工作原理
+</p>
+
+
+## 代价函数的直观理解
+引入一种表示方法：轮廓图。我们在三维空间来表示（$\theta_{0}, \theta_{1}, J(\theta_{0}, \theta_{1})$)，如图\ref{figure:contour}
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{contour.png}
+		\caption{轮廓图}\label{figure:contour}
+	\end{center}
+\end{figure}
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/12948998.jpg)
+</center>
+<p class="caption">
+
+图 5: 轮廓图
+</p>
+
+
+
+可以直观地得到以下结论：在曲面的最低的那个点对应的代价误差最小，对应的（$\theta_{0}, \theta_{1}$)是我们要找的参数组合。
+
+还有一种表示方法：等高线图，他的工作原理是，每一圈上的值都是相等的，即对应的代价误差是相同的。从外到里，代价不断减小，最里面的是最小的代价误差，也是我们算法要最终学习到的点。如图\ref{figure:contour_2}
+
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{contour_2.png}
+		\caption{等高线图}\label{figure:contour_2}
+	\end{center}
+\end{figure}
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/66180792.jpg)
+</center>
+<p class="caption">
+图 6: 等高线图
+</p>
+
+# 梯度下降算法
+## 算法描述
+我们很迫切想求得最佳拟合参数（$\theta_{0}, \theta_{1}$），但是有不想通过枚举的方式求得，因此需要一个算法能够自动求出使得代价函数$J(\theta_{0}, \theta_{1})$取得最小值的参数$\theta_{0}, \theta_{1}$.
+
+所以在这里引入梯度下降算法。主要思想是想象你在一个山丘上，怎么样以最快的速度从山上到山脚下？在这里就引入了梯度的概念，即下降速度最快的方向，所以人没走一步就检查一下，当前是否为下降最快的方向？若不是则将重新求梯度，按照梯度指示的方向走，则为最快的方式！将这种思想应用到求使得代价误差函数最小，也是这么做的。但是这样往往带来几个问题？
+
+1. 以多大的脚步往下走，因为如果脚步过大，则会造成错过最佳的下山路线。（学习速率选择问题）
+2. 由于不一定你的目标函数是凸函数，所以每次走可能走到不同”的山脚“。（局部最小值，凸优化问题）如图\ref{figure:gradient}
+
+
+这些问题将会在后面一一解决！
+
+\begin{figure}[htbp]
+\centering                                                          %居中
+\subfigure[梯度下降]{                    %第一张子图
+\begin{minipage}{7cm}
+\centering                                                          %子图居中
+\includegraphics[scale=0.3]{gradient_intu.png}               %以pic.jpg的0.5倍大小输出
+\end{minipage}}
+\subfigure[走到局部最低点]{                    %第二张子图
+\begin{minipage}{7cm}
+\centering                                                          %子图居中
+\includegraphics[scale=0.3]{gradient_intu_2.png}                %以pic.jpg的0.5倍大小输出
+\end{minipage}}
+\caption{梯度下降算法} %                         %大图名称
+\label{figure:gradient}                                                        %图片引用标记
+\end{figure}
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/65682294.jpg)
+</center>
+下面是梯度下降算法的为伪代码。
+
+
+
+
+\begin{algorithm}[h]  
+  \caption{梯度下降算法简化版}  
+  \label{alg::Gradient Descent Simple}  
+  \begin{algorithmic}[1]  
+    \Require
+    $\alpha$ 学习率;
+    $\theta_{0} \in R, \theta_{1}\in R$ 参数;
+    $J$ 代价误差函数;
+    $:=$ 赋值;
+    \Repeat  
+      \State $\theta_{j} := \theta_{j} - \alpha\frac{\partial}{\partial_{j}}J(\theta_{0}, \theta_{1})$ for $j = 0 $和$j = 1 $; 
+      \State (向量版本)$\theta :=  \theta - \alpha\nabla J(\theta_{0}, \theta_{1})$;
+    \Until{收敛}  
+  \end{algorithmic}  
+\end{algorithm}  
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/96169106.jpg)
+</center>
+
+下图\ref{figure:gradient_change_theta} 直观的描述$\theta$是如何变化的.这里$\alpha > 0$.
+
+\begin{figure}[htbp]
+\centering                                                          %居中
+\subfigure[$\frac{\partial}{\partial_{\theta_{1}}}J(\theta_{0}, \theta_{1}) > 0$时，$\theta_{1}$往右移动]{                    %第一张子图
+\begin{minipage}{7cm}
+\centering                                                          %子图居中
+\includegraphics[scale=0.5]{gradient_change_theta.png}               %以pic.jpg的0.5倍大小输出
+\end{minipage}}
+\subfigure[$\frac{\partial}{\partial_{\theta_{1}}}J(\theta_{0}, \theta_{1}) < 0$时，$\theta_{1}$往左移动]{                    %第二张子图
+\begin{minipage}{7cm}
+\centering                                                          %子图居中
+\includegraphics[scale=0.5]{gradient_change_theta_1.png}                %以pic.jpg的0.5倍大小输出
+\end{minipage}}
+\caption{代价误差不断接近最低处} %                         %大图名称
+\label{figure:gradient_change_theta}                                                        %图片引用标记
+\end{figure}
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/29605590.jpg)
+</center>
+
+## 学习率$\alpha$
+学习率在算法迭代时起着很大的作用。
+\begin{enumerate}
+\setlength{\itemsep}{1pt}
+\setlength{\parsep}{0pt}
+\setlength{\parskip}{0pt}
+- 如果$\alpha$过小，将会导致算法的收敛速度很慢，算法的效率低;
+- 如果$\alpha$过大，在梯度下降过程中，很容易掠过最小值，可能会无法收敛甚至发散。如图\ref{figure:alpha}.
+\end{enumerate}
+
+
+\begin{figure}[htbp]
+\centering                                                          %居中
+\subfigure[$\alpha$过小，导致收敛速度很慢]{                    %第一张子图
+\begin{minipage}{7cm}
+\centering                                                          %子图居中
+\includegraphics[scale=0.5]{alpha_low.png}               %以pic.jpg的0.5倍大小输出
+\end{minipage}}
+\subfigure[$\alpha$过大，导致无法到达最低点]{                    %第二张子图
+\begin{minipage}{7cm}
+\centering                                                          %子图居中
+\includegraphics[scale=0.5]{alpha_high.png}                %以pic.jpg的0.5倍大小输出
+\end{minipage}}
+\caption{不同的$\alpha$对算法收敛的影响} %                         %大图名称
+\label{figure:alpha}                                                        %图片引用标记
+\end{figure}
+
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/75838488.jpg)
+</center>
+
+虽然选择的是合适的$alpha$，但是算法还是会掉到局部最小值，对于局部最小值的描述如图\ref{figure:local_minimize}
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{local_minimize.png}
+		\caption{局部最小值}\label{figure:local_minimize}
+	\end{center}
+\end{figure}
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/23570380.jpg)
+</center>
+
+在算法迭代时，随着逐渐接近最小值，步子会慢慢地变小，直到接近最小值。所以在算法的迭代过程中不需要对$\alpha$改变。
+
+\subsubsection{算法详细版}
+
+- 假说函数:	$h_{\theta}(x) = \theta_{0} + \theta_{1}x$
+- 参数：$\theta_{0}, \theta_{1}$
+- 代价函数：$J(\theta_{0},\theta_{1}) = \frac{1}{2m}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})- y^{(i)})^{2}$
+- 目标：$minimize_{\theta{0},\theta{1}}J(\theta_{0}, \theta_{1})$
+- 求解：$\theta_{j} := \theta_{j} - \alpha \frac{\partial}{\partial_{\theta_{j}}} J(\theta_{0}, \theta_{1})$ for $j=0$ 和 $j=1$
+
+
+
+结合上面的公式可以求得
+$$ \theta_{0} := \theta_{0} - \alpha \frac{1}{m} \sum_{i=1}^{m}(h_{\theta}(x^{(i)}) - y^{(i)})$$
+$$ \theta_{1} := \theta_{1} - \alpha \frac{1}{m} \sum_{i=1}^{m}(h_{\theta}(x^{(i)}) - y^{(i)})x^{(i)}$$
+
+算法的伪代码如下：
+
+\begin{algorithm}[h]  
+  \caption{梯度下降算法简化版}  
+  \label{alg::Gradient Descent Simple}  
+  \begin{algorithmic}[1]  
+    \Require
+    $\alpha$ 学习率;
+    $\theta_{0} \in R, \theta_{1}\in R$ 参数;
+    $:=$ 赋值;
+    \Repeat  
+      \State $\theta_{0} := \theta_{0} - \alpha \frac{1}{m} \sum_{i=1}^{m}(h_{\theta}(x^{(i)}) - y^{(i)})$; 
+      \State $\theta_{1} := \theta_{1} - \alpha \frac{1}{m} \sum_{i=1}^{m}(h_{\theta}(x^{(i)}) - y^{(i)})x^{(i)}$;
+    \Until{收敛}  
+  \end{algorithmic}  
+\end{algorithm}  
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-21/55414484.jpg)
+</center>
+
+- 由于代价误差函数是二次函数，二次项为负所以图像为“弓（拱）”形，所以是**凸函数**，所以算法总能收敛到全局最小值.
+- 由于训练的过程中，将全部的训练数据喂给我们的模型，所以该过程又称**“批量训练过程”**.
+

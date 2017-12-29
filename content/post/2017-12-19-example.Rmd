@@ -1,0 +1,46 @@
+---
+title: Display Image Using R
+author: shenhengheng
+date: '2017-12-19'
+categories:
+  - blog
+  - comment
+tags:
+  - blog
+  - disqus
+  - gitalk
+  - matrix
+  - pi
+  - rmarkdown
+---
+
+
+
+
+```r
+
+{r fig-margin, echo=FALSE, fig.cap="这是一个神经网络的图。", fig.height=3.5, fig.margin=TRUE, warning=FALSE, background="#f5f5d5", cache=FALSE}
+# need png package
+library(png)
+
+#Replace the directory and file information with your info
+ima <- readPNG("C:\\Users\\Shine\\Desktop\\readailib\\themes\\hugo-lithium-theme\\static\\images\\logo.png")
+
+grid::grid.raster(ima)
+
+
+```
+
+
+```{r fig-margin, echo=FALSE, fig.cap="这是一个神经网络的图。", fig.height=3.5, fig.margin=TRUE, warning=FALSE,eval=TRUE,background="#f5f5d5", cache=FALSE}
+
+library(png)
+par(bg = "#f5f5d5")
+
+ima <- readPNG("C:\\Users\\Shine\\Desktop\\readailib\\themes\\hugo-lithium-theme\\static\\images\\logo.png")
+grid::grid.raster(ima)
+
+
+```
+
+
