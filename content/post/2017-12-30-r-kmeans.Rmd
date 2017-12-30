@@ -1,0 +1,105 @@
+---
+title: R实战-KMeans
+author: Heng-Heng Shen
+date: '2017-12-30'
+slug: r-kmeans
+github: rh01
+categories:
+  - KMeans
+tags:
+  - Kmeans
+  - ml
+---
+
+
+本次主要讲解Kmeans实做部分，假设读者有Kmeans算法的背景下，下面是R程序，本程序对iris数据进行建模。
+
+## 安装并导入必要的程式套件
+
+主要用到了MASS，cluster，clusterSim等套件，其中clusterSim主要作为选取合适的k值得算法。
+
+```{r, warning=FALSE, message=FALSE}
+#install.packages("MASS")
+library(MASS)
+#install.packages("cluster")
+library(cluster)
+#install.packages("clusterSim")
+library(clusterSim)
+```
+
+## 导入数据
+
+导入经典的iris数据集，数据集已经是tidy的了。
+
+```{r, warning=FALSE, message=FALSE}
+data(iris)
+```
+
+## 数据建模部分
+
+**注意：** 现在数据的整理和探索部分就省略掉了，假定读者对iris数据集非常熟悉了，因此直接进入数据建模部分。
+
+首先定义我们要聚成几类
+
+```{r, warning=FALSE, message=FALSE}
+min.nc = 2
+max.nc = 8
+```
+
+然后我们现在指定k=3，此时的建立模型的算法如下：
+
+```{r, warning=FALSE, message=FALSE}
+## 定義模型
+result0 <- kmeans(iris[, -5], centers = 3)
+print(result0)
+names(result0)
+result0["cluster"]
+result0["centers"]
+result0$centers
+```
+
+```{r, fig.width = 10, fig.fullwidth = TRUE, fig.cap = "聚类结果，其中*表示群中心。", warning=FALSE, cache=TRUE}
+table(iris$Species, result0$cluster)
+par(bg = "#f5f5d5")
+## pch 符號和col顏色
+plot(iris[, 1:2], pch=(result0$cluster), col=result0$cluster)
+## 在圖片上標出中心位置
+points(result0$centers[, 1:2], col=1:3, pch=8)
+```
+
+熟悉了基本的kmeans算法之后，我们现在将手动选取k值变成程序自动选择最佳的k值，那么这就需要评测标准，下面给出一个评测标准，其中这个评测标准/指标可以使用函数`index.DB()`实现.
+
+一般来说，聚类主要实现的是**群内变异小，群间变异大**！量化为
+
+\begin{align*}
+\rm{DB} \; \rm{index} &= \frac{1}{c} \sum_{i} R_i \\
+R_i &= max_i R_{ij}, \forall i \not = j \; \\
+R_{ij} &= \frac{S_i + S_j}{||m_i - m_j||^2} \\
+S_i &= \frac{1}{n_i} \sum\limits_{x \in i}^{} {{{(x - {m_i})}^2}}\\
+\end{align*}
+
+<center>
+![](http://olrs8j04a.bkt.clouddn.com/17-12-30/76240382.jpg)
+<p class="caption">
+图 1: K值选择的标准
+</p>
+</center>
+
+具体的程序如下：
+
+```{r,fig.width = 10, fig.fullwidth = TRUE, fig.cap = "最佳聚类结果。", warning=FALSE, cache=TRUE}
+## 定義最佳分群數
+## 選擇最佳分群數
+KM <- array(0, c(max.nc-min.nc+1, 1))
+for (nc in min.nc:max.nc){
+  fitkm = kmeans(iris[, 1:4], center = nc)
+  KM[nc-(min.nc-1), 1]=index.DB(iris[, -5], fitkm$cluster, centrotypes="centroids", p=2)$DB ##用来计算DB值
+}
+which(KM[, 1] == min(KM[, 1]))
+## [1] 表示分成2（min.nc）群比較好
+
+result = kmeans(iris[, 1:4], centers = 2)
+par(bg = "#f5f5d5")
+plot(iris[, 3:4], pch=(result$cluster), col=result$cluster)
+points(result$centers[, 3:4], col=1:2, pch = 8)
+```
