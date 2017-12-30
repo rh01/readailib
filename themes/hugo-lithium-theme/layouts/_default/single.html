@@ -11,7 +11,7 @@
 
     {{ if eq .Section "post" }}
     <!-- <span class="article-date">{{ .Date.Format "2006/01/02" }}</span> -->
-    <div class="post-meta" style="text-align: center">  <a href="http://github.com/rh01">rh01</a>  &nbsp;•&nbsp; {{ .Date.Format "2006/01/02" }} &nbsp;•&nbsp; {{ .ReadingTime }} min read </div>
+    <div class="post-meta" style="text-align: center">  <a href="http://github.com/{{ .Params.github }}" >{{ .Params.author }}</a>  &nbsp;•&nbsp; {{ .Date.Format "2006/01/02" }} &nbsp;•&nbsp; {{ .ReadingTime }} min read </div>
     {{ end }}
 
     <div class="article-content">

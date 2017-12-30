@@ -7,11 +7,13 @@
 <link rel="icon" href="http://rh01.github.io/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="http://rh01.github.io/favicon.ico" type="image/x-icon" />
 <meta property="og:title" content="{{ .Site.Title }}">
+<meta property="og:author" content="{{ .Author }}">
+
 <meta property="og:type" content="website">
 {{ else }}
 <title>{{ .Title }}{{ with .Params.subtitle }} - {{ . }} {{ end }} - {{ .Site.Title }}</title>
 <meta property="og:title" content="{{ .Title }} - {{ .Site.Title }}">
-<meta property="og:author" content="{{ .Title }} - {{ .Author }}">
+<meta property="author" content="{{ .Author }} - {{ .Site.Params.Author }}">
 {{ end }}
 
 {{ if eq .URL "/" }}
