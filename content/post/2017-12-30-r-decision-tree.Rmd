@@ -1,0 +1,172 @@
+---
+title: R实战-决策树
+author: Heng-Heng Shen
+date: '2017-12-30'
+slug: r实战-决策树
+categories:
+  - blog
+  - ml
+  - Dicision Tree
+tags:
+  - Decision Tree
+  - ml
+---
+
+------
+  
+本篇内容，会继续介绍一些常用的数据挖掘模型：   
+
+
+这里拿网络上一个公开数据(铁达尼号的乘客数据)来进行分析，<a href="http://www.rdatamining.com/data/titanic.raw.rdata?attredirects=0&d=1" target="_blank">资料载点如下</a>。   
+
+
+   
+# 决策树(Decision Tree)  
+
+无论在分类或预测上，决策树的算法都有很好的效果。   
+   
+但它最强大的地方，莫过于树状分支的结构：可以明显呈现分类的规则！与一些机器学习的方法(NN, SVM...)相比，相当容易进行解释，以及分析规则之间的关系。   
+
+这里就简单用CART决策树来练习，对应的套件是`rpart`，一样使用上次铁达尼号的数据：
+
+```{r,warning=F}
+# 记得要给定数据所在的路径(path)，例如：我把下载的资料放在C槽下：
+load("F:\\01_学习资料\\R\\Data-Mining-master\\Source-File\\決策樹\\titanic.raw.rdata")  #汇入.rdata檔
+```    
+
+```{r, message=F,warning=F}
+require(rpart)
+
+# 先把数据区分成 train=0.8, test=0.2 
+set.seed(22)
+train.index <- sample(x=1:nrow(titanic.raw), size=ceiling(0.8*nrow(titanic.raw) ))
+train <- titanic.raw[train.index, ]
+test <- titanic.raw[-train.index, ]
+
+# CART的模型：把存活与否的变数(Survived)当作Y，剩下的变数当作X
+cart.model<- rpart(Survived ~. , 
+                    data=train)
+
+# 输出各节点的详细信息(呈现在console窗口)
+cart.model
+```   
+
+要画出决策树(可视化)，虽然用平常的`plot()`就可以达成   
+   
+但rpart有专属的绘图套件`rpart.plot`，函式是`prp()`   
+   
+说真的，用`prp()`画出来的决策树，比较好看一些：
+
+```{r, fig.width = 10,  fig.fullwidth = TRUE, fig.cap = "决策树模型。", warning=FALSE, cache=TRUE}
+require(rpart.plot)	
+par(bg = "#f5f5d5")
+prp(cart.model,         # 模型
+    faclen=0,           # 呈现的变数不要缩写
+    fallen.leaves=TRUE, # 让树枝以垂直方式呈现
+    shadow.col="gray",  # 最下面的节点涂上阴影
+    # number of correct classifications / number of observations in that node
+    extra=2)  
+```   
+   
+(最下面节点的数字，代表：**number of correct classifications / number of observations in that node**)   
+   
+根据以上决策树，可以发现**是男生或女生**其实很重要(因为是第一个分支规则)，其次是在船上的舱位等级。   
+   
+因此，我们可以这样解释：   
+
+> 即使是女性，可是拥有的舱位若是最低下的(3rd)，则大概有一半的死亡机率(82/155=53%)；   
+但当妳的舱位高人一等时，则有相当高的存活机率(197/208=95%)。  
+
+
+又或者是：   
+
+> 当你是男性成人时，大概有八成机率会死(1084/1348=77%)  
+  
+
+以及
+
+> 若是男性小孩，就和舱位等级有关：高级舱位的小孩全都获救(13/13)，可是低舱位的小孩有七成机率(26/37=70%)会死。  
+ 
+
+**(男生好可怜)**   
+
+●也可用另一个绘图套件`partykit`，函式是`as.party()`和`plot()`
+
+```{r, fig.width = 10,  fig.fullwidth = TRUE, fig.cap = "CART决策树模型。", warning=FALSE, cache=TRUE}
+require(partykit)	
+par(bg = "#f5f5d5")
+rparty.tree <- as.party(cart.model) # 转换cart决策树
+rparty.tree # 输出各节点的详细信息
+plot(rparty.tree) 
+``` 
+
+用这个套件画出来的图也是蛮容易一目了然的呢!
+有不一样的感觉~
+
+
+   
+有决策树之后，就要进行预测！   
+   
+还记得在线性回归使用过的`predict()`吗？这时就会派上用场啰(在这里，会同时计算预测准确率)：    
+   
+```{r}
+pred <- predict(cart.model, newdata=test, type="class")
+
+# 用table看预测的情况
+table(real=test$Survived, predict=pred)
+
+# 计算预测准确率 = 对角线的数量/总数量
+confus.matrix <- table(real=test$Survived, predict=pred)
+sum(diag(confus.matrix))/sum(confus.matrix) # 对角线的数量/总数量
+```
+
+
+
+结果显示，模型在测试集中的预测能力大约77%，但模型的预测准确率还有提升的可能吗？我们继续对模型进行修树~
+```{r, fig.width = 10, fig.fullwidth = TRUE, fig.cap = "未修剪的树。", warning=FALSE, cache=TRUE}
+printcp(cart.model) # 先观察未修剪的树，CP字段代表树的成本复杂度参数
+``` 
+
+```{r, fig.width = 10,  fig.fullwidth = TRUE, fig.cap = "未修剪的树。", warning=FALSE, cache=TRUE}
+par(bg = "#f5f5d5")
+plotcp(cart.model) # 画图观察未修剪的树
+```   
+
+```{r}
+prunetree_cart.model <- prune(cart.model, cp = cart.model$cptable[which.min(cart.model$cptable[,"xerror"]),"CP"]) # 利用能使决策树具有最小误差的CP来修剪树
+```
+
+修剪完决策树之后，让我们重新建构一次预测模型
+```{r}
+prunetree_pred <- predict(prunetree_cart.model, newdata=test, type="class")
+
+# 用table看预测的情况
+table(real=test$Survived, predict=prunetree_pred)
+
+prunetree_confus.matrix <- table(real=test$Survived, predict=prunetree_pred)
+sum(diag(prunetree_confus.matrix))/sum(prunetree_confus.matrix) # 对角线的数量/总数量
+```
+
+很显然，模型的预测准确率并没有提升，一样是大约77%，这是因为我们在修剪时所挑选到满足条件的CP值为**0.01**，而函式`rpart()`预设的CP值就是**0.01**，故前后模型的结果一致。
+
+
+
+再来，我们为了避免模型过度拟合(overfitting)，故要利用K-fold Cross-Validation的方法进行交叉验证，我们使用`caret`这个套件，而K先设定为10次~
+```{r, message=F,warning=F}
+require(caret)
+require(e1071)
+train_control <- trainControl(method="cv", number=10)
+train_control.model <- train(Survived~., data=train, method="rpart", trControl=train_control)
+train_control.model
+```
+
+然而，我们一开始修剪树之后所得到的决策树模型，最佳的预测准确率大约为77%，而现在再透过交叉验证所Tune得的参数，使得模型的最佳预测准确率大约提升为78%。
+
+
+
+# 总结    
+
+在数据挖掘领域中，决策树(Decision Tree)是相当常见的方法，例如在医学研究上，对某种特定的疾病(糖尿病，代谢症候群等)找出可以前期筛检分类，或是预测的因子时，就常以决策树的方法来进行，而决策树较为不同之处在于可用图像化来呈现结果，即使不了解背后理论，仍可解读并判断。
+
+进行决策树分析要注意的是，当样本存在类别不不衡的问题时，决策树对于小类的样本根本无能为力，模型的效能会大打折扣。
+

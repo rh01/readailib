@@ -10,20 +10,6 @@ tags:
   - rmarkdown
 ---
 
----
-title: "在R Markdown文档中使用中文"
-author:
-  - 谢益辉
-  - 邱怡轩
-  - 于淼
-documentclass: ctexart
-output:
-  rticles::ctex:
-    fig_caption: yes
-    number_sections: yes
-    toc: yes
-classoption: "hyperref,"
----
 
 # 引言
 
