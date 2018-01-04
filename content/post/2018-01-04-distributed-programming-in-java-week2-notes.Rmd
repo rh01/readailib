@@ -1,6 +1,7 @@
 ---
 title: 分布式编程第二周课堂笔记
 author: Heng-Heng Shen
+github: rh01
 date: '2018-01-04'
 slug: distributed-programming-in-java-week2-notes
 categories:
