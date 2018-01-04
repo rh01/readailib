@@ -1,0 +1,36 @@
+---
+title: Happy New Year
+author: Admin
+github: rh01
+date: '2017-12-31'
+slug: happy-new-year-on-2018
+categories:
+  - '2018'
+tags:
+  - '2018'
+---
+
+```{r setup, include=FALSE}
+library(tufte)
+
+# tufte版本变化之后更新knitr缓存
+knitr::opts_chunk$set(tidy = FALSE, cache.extra = packageVersion('tufte'))
+options(htmltools.dir.version = FALSE)
+```
+
+我们ReadAILib全体成员祝大家新年快乐，祝大家在2018年工作顺利，下面是每个人新年愿望！
+
+![](http://olrs8j04a.bkt.clouddn.com/18-1-1/60928606.jpg)
+
+> "2018新目标-考入自己的目标大学，一切事物都越来越好！"
+>
+> `r tufte::quote_footer('--- Bing-Hao Jia')`
+
+
+> "希望2018顺顺利利的，考研成功！一切会更好！"
+>
+> `r tufte::quote_footer('--- Yan-Yue Zhang')`
+
+> "我希望在2018年能够在性格上更加成熟些，更加稳重些，为人低调些，工作积极些. 期待2018年年能去潮汕！"
+>
+> `r tufte::quote_footer('--- Heng-Heng Shen')`

@@ -8,7 +8,7 @@ date: "2017-12-14T21:48:51-07:00"
 ##  Contributors
 
 - [Heng-Heng Shen](http://github.com/rh01)
-- [Bing-Hao Jia](http://github.com/rh01)
+- [Bing-Hao Jia](http://github.com/jiabinghao)
 - [Yan-Yue Zhang](http://github.com/MARzhangyy)
 
 ## Statement Mission

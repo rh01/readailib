@@ -1,5 +1,5 @@
 ---
-title: R实战-KMeans
+title: R实战-Kmeans
 author: Heng-Heng Shen
 date: '2017-12-30'
 slug: r-kmeans
